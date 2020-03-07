@@ -1,0 +1,1 @@
+self.high_score
