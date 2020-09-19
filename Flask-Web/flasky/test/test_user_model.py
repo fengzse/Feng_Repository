@@ -1,12 +1,12 @@
 import unittest
 import time
 
-from app.models import User
+from app.models import User, Role, Permission, AnonymousUser
 from app import db, create_app
 
 
-class TestUserModelCase(unittest.TestCase):            # 因为测试的时候不是用户发来请求，没有上下文，因此需要创建一个
-    def setUp(self):                                   # app上下文环境，可以创建出 current_app等用以执行测试方法
+class TestUserModelCase(unittest.TestCase):  # 因为测试的时候不是用户发来请求，没有上下文，因此需要创建一个
+    def setUp(self):  # app上下文环境，可以创建出 current_app等用以执行测试方法
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
         self.app_context.push()
@@ -75,3 +75,13 @@ class TestUserModelCase(unittest.TestCase):            # 因为测试的时候�
         token = u.generate_reset_token()
         self.assertFalse(User.reset_password(token + 'ab', 'dog'))
         self.assertTrue(u.verify_password('cat'))
+
+    def test_role_and_permission(self):
+        Role.insert_roles()
+        u = User(email='abc@example.com', password='cat')
+        self.assertTrue(u.can(Permission.WRITE))
+        self.assertFalse(u.can(Permission.ADMIN))
+
+    def test_anonymoususers_permission(self):
+        u = AnonymousUser()
+        self.assertFalse(u.can(Permission.COMMENT))
