@@ -1,10 +1,12 @@
-from flask import render_template, redirect, url_for, flash, request, current_app, abort
+import os
+from flask import render_template, redirect, url_for, flash, request, current_app, abort, send_from_directory
 from . import main
-from .. import db
+from .. import db, ckeditor
 from ..models import User, Role, Permission, Post
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm
 from flask_login import login_required, current_user
 from ..decorators import admin_required
+from flask_ckeditor import upload_success, upload_fail
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -108,3 +110,35 @@ def edit(id):
         return redirect(url_for('.post', id=post.id))
     form.body.data = post.body
     return render_template('edit_post.html', form=form)
+
+
+@main.route('/del/<int:id>', methods=['GET', 'POST'])
+@login_required
+def del_post(id):
+    post = Post.query.get_or_404(id)
+    if current_user != post.author and \
+            not current_user.can(Permission.ADMIN):
+        abort(403)
+    db.session.delete(post)
+    db.session.commit()
+    return redirect(url_for('.index'))
+
+
+@main.route('/static/<path:filename>')
+def uploaded_files(filename):
+    path = '/static/uploaded_files'
+    return send_from_directory(path, filename)
+
+
+@main.route('/upload', methods=['POST'])
+@login_required
+def upload():
+    f = request.files.get('main.upload')  # 获取上传图片文件对象
+    # 验证图片格式
+    extension = f.filename.split('.')[1].lower()
+    if extension not in ['jpg', 'gif', 'png', 'jpeg']:  # 验证文件类型示例
+        return upload_fail(message='Image only!')  # 返回upload_fail调用
+    f.save(os.path.join('/static/uploaded_files', f.filename))  # 上传时返回找不到图片的url，应该是这里不对
+    url = url_for('.uploaded_files', filename=f.filename)
+    return upload_success(url=url)
+

@@ -8,11 +8,20 @@
     <h1>Edit Post</h1>
 </div>
 <div>
-    {{ wtf.quick_form(form) }}
+	<form method="post">
+		{{ form.csrf_token }}
+		{{ form.body.label() }}<br>
+		{{ form.body() }}
+	<br>
+		{{ form.submit() }}
+	</form>
+	{{ ckeditor.load() }}
+	{{ ckeditor.config(name='body') }}
 </div>
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-{{ pagedown.include_pagedown() }}
+<script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+<script src="{{ url_for('static', filename='ckeditor/plugin.js') }}"></script>
 {% endblock %}

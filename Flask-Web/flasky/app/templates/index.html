@@ -3,6 +3,30 @@
 {% import "_macros.html" as macros %}
 
 {% block title %}Flasky{% endblock %}
+{% block head %}
+{{ super() }}
+<!-- 要实现图片轮播必须以下脚本，顺序不能错误 -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://cdn.staticfile.org/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js"></script>
+  <script src="https://cdn.staticfile.org/twitter-bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <style>
+  /* Make the image fully responsive */
+  .carousel-inner img {
+      width: 100%;
+      height: 100%;
+  }
+  /* Make customized background */
+  .gradient{
+    width:100%;
+    /*height:150px;*/
+    background:-webkit-gradient(linear, 0 0, 0 bottom, from(#344a73), to(#353334))
+}
+  </style>
+
+{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
@@ -13,21 +37,92 @@
         Start your journey from here
         {% endif %}!
     </h1>
-</div>
-<div>
-    {% if current_user.can(Permission.WRITE) %}
-    {{ wtf.quick_form(form) }}
+    {% if not current_user.is_authenticated %}
+    <div class="row">
+        <div class="col-*-*, gradient">
+            <h5 class="text-white">(Introduction of the company and business here!)</h5>
+        </div>
+    </div>
     {% endif %}
 </div>
-{% include '_posts.html' %}
-{% if pagination %}
-<div class="pagination">
-    {{ macros.pagination_widget(pagination, '.index') }}
+<div>
+    {% if current_user.is_authenticated %}
+    <div class="row">
+        <div class="col">
+            <h3>Try uploaded videos</h3>
+            <video controls="controls" src="/static/media/videos/shuttle.mp4">
+            您的浏览器不支持 HTML5 视频元素.
+            </video>
+        </div>
+        <div class="col">
+            <h3>Try online videos</h3>
+            <iframe width="560" height="340" src="//player.bilibili.com/player.html?aid=4219103&cid=6818007&page=1"
+                    scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"> </iframe>
+            <p>视频源地址：<a href="https://www.bilibili.com/video/av4219103"
+                        target="_blank" rel="nofollow">https://www.bilibili.com/video/av4219103</a>
+            </p>
+        </div>
+    </div>
+    <div>
+        {% if current_user.can(Permission.WRITE) %}
+        <div>
+            <form method="post">
+			    {{ form.csrf_token }}
+			    {{ form.body.label }}<br>
+			    {{ form.body }}
+			    <br>
+			    {{ form.submit }}
+		    </form>
+	    </div>
+	    {{ ckeditor.load() }}
+	    {{ ckeditor.config(name='body') }}
+        {% endif %}
+    </div>
+    {% include '_posts.html' %}
+    {% if pagination %}
+        <div class="pagination">
+            {{ macros.pagination_widget(pagination, '.index') }}
+        </div>
+    {% endif %}
+    {% else %}
+    <div id="demo" class="carousel slide" data-ride="carousel">
+
+        <!-- 指示符 -->
+        <ul class="carousel-indicators">
+            <li data-target="#demo" data-slide-to="0" class="active"></li>
+            <li data-target="#demo" data-slide-to="1"></li>
+            <li data-target="#demo" data-slide-to="2"></li>
+        </ul>
+
+        <!-- 轮播图片 -->
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img src="/static/media/images/example1.jpg">
+            </div>
+            <div class="carousel-item">
+                <img src="/static/media/images/example2.jpg">
+            </div>
+            <div class="carousel-item">
+                <img src="/static/media/images/example3.jpg">
+            </div>
+        </div>
+
+        <!-- 左右切换按钮 -->
+        <a class="carousel-control-prev" href="#demo" data-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </a>
+        <a class="carousel-control-next" href="#demo" data-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </a>
+
+    </div>
+    {% endif %}
 </div>
-{% endif %}
+
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-{{ pagedown.include_pagedown() }}
+<script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+<script src="{{ url_for('static', filename='ckeditor/plugin.js') }}"></script>
 {% endblock %}

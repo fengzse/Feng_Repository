@@ -19,6 +19,8 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     FLASKY_POSTS_PER_PAGE = 20
 
+    CKEDITOR_FILE_UPLOADER = 'main.upload'
+
     @staticmethod
     def init_app(app):
         pass

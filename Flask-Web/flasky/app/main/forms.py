@@ -3,6 +3,7 @@ from wtforms import StringField, SubmitField, TextAreaField, BooleanField, Selec
 from wtforms.validators import DataRequired, Length, Regexp, Email, ValidationError
 from ..models import Role, User
 from flask_pagedown.fields import PageDownField
+from flask_ckeditor import CKEditorField
 
 
 class NameForm(FlaskForm):
@@ -47,6 +48,7 @@ class EditProfileAdminForm(FlaskForm):
 
 
 class PostForm(FlaskForm):
-    # body使用富文本渲染
-    body = PageDownField('What\'s on your mind', validators=[DataRequired()])
+    # 使用富文本渲染, 使用了CKEditor 替换了PageDown
+    # 因无法实现单独渲染title，暂时弃用
+    body = CKEditorField('What\'s on your mind', validators=[DataRequired()])
     submit = SubmitField('Submit')
