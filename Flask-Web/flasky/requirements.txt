@@ -2,7 +2,7 @@ alembic==1.4.2
 amqp==2.6.1
 bcrypt==3.2.0
 billiard==3.6.3.0
-bleach==3.2.1
+bleach==3.3.0
 blinker==1.4
 celery==4.4.7
 cffi==1.14.2
